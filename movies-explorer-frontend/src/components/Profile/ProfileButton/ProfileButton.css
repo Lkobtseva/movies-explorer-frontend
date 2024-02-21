@@ -1,0 +1,31 @@
+.profile-btn {
+  width: 100px;
+  height: 32px;
+  box-sizing: border-box;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.profile-btn:hover {
+  opacity: 0.7;
+}
+
+.profile-btn__img {
+  margin: 10px 9px 12px;
+}
+
+.profile-btn__text {
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.profile-btn__text_profile {
+  font-size: 14px;
+  margin: 8px 0px 8px 0;
+  color: white;
+}

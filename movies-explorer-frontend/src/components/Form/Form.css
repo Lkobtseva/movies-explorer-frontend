@@ -1,0 +1,137 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.form__container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 396px;
+}
+
+.form__title {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 29px;
+  margin-top: 42px;
+  margin-bottom: 40px;
+  color: #ffffff;
+}
+
+.form__btn-submit {
+  width: 396px;
+  height: 45px;
+  background: #3456f3;
+  border-radius: 3px;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 17px;
+  text-align: center;
+  color: #ffffff;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.form__btn-submit_disable {
+  background: #f8f8f8;
+  color: #c2c2c2;
+  cursor: default;
+}
+
+.form__btn-submit:hover {
+  opacity: 0.8;
+}
+
+.form__label {
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 12px;
+  color: #a0a0a0;
+}
+
+.form__label:last-of-type {
+  margin-bottom: 0;
+}
+
+.form__input {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+  background: #2f2f2f;
+  border-radius: 8px;
+  width: 396px;
+  height: 46px;
+  border: none;
+  padding: 15px;
+  margin-top: 11px;
+  box-sizing: border-box;
+}
+
+.form__input_error {
+  color: #ff3055;
+}
+
+.form__input-error {
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 12px;
+  color: #ff3055;
+  width: 100%;
+  height: 18px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.form__input-error_server {
+  justify-content: center;
+  font-size: 11px;
+  line-height: 13px;
+}
+
+.form__input-error_reg {
+  margin-top: 29px;
+}
+
+.form__input-error_log {
+  margin-top: 118px;
+}
+
+@media screen and (max-width: 530px) {
+  .form {
+    max-width: 260px;
+    align-items: center;
+  }
+
+  .form__container {
+    align-items: center;
+  }
+
+  .form__title {
+    align-self: center;
+    margin-bottom: 80px;
+    margin-top: 50px;
+  }
+
+  .form__input,
+  .form__btn-submit {
+    width: 260px;
+  }
+
+  .form__btn-submit {
+    font-size: 12px;
+    line-height: 15px;
+  }
+
+  .form__input-error_reg {
+    margin-top: 119px;
+  }
+
+  .form__input-error_log {
+    margin-top: 206px;
+  }
+}
