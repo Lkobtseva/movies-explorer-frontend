@@ -17,6 +17,7 @@ function Login() {
                 name="email"
                 type="email"
                 required
+                placeholder="Введите почту"
               />
               <span className="form__input-error"></span>
             </label>
@@ -28,6 +29,7 @@ function Login() {
                 name="password"
                 type="password"
                 required
+                placeholder="Введите пароль"
               />
               <span className="form__input-error"></span>
             </label>

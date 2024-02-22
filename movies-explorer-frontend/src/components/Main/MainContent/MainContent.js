@@ -11,7 +11,7 @@ function MainContent(props) {
   return (
       <main className="content">
         <Promo/>
-        <div id="about-project"> 
+        <div id="aboutProject"> 
           <AboutProject />
         </div>
         <Techs />

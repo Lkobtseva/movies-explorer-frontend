@@ -15,7 +15,7 @@ function Header(props) {
   } = props;
   const location = useLocation();
   const headerClassName = ` ${
-    location.pathname === "/" ? "header_main" : "header"
+    location.pathname === "/" ? "header--main" : "header"
   }`;
 
   return (

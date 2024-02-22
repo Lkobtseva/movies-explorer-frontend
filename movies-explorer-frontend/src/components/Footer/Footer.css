@@ -39,8 +39,11 @@
     font-size: 13px;
     line-height: 16px;
     color:white;
+    text-decoration: none;
   }
-  
+  .footer__text:hover {
+opacity: 0.7;
+  }
   .footer__text:last-child {
     margin-right: 0;
   }

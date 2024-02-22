@@ -2,7 +2,7 @@ import React from "react";
 
 function Promo() {
   const handleButtonClick = () => {
-    const aboutProjectElement = document.getElementById("about-project");
+    const aboutProjectElement = document.getElementById("aboutProject");
     aboutProjectElement.scrollIntoView({ behavior: "smooth" });
   };
 

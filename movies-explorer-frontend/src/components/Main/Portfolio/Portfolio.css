@@ -33,7 +33,7 @@
 .portfolio__link:last-child {
   border-bottom: none;
 }
-.link__text {
+.portfolio__link--text {
   color: white;
   font-size: 30px;
   font-weight: 400;
@@ -42,7 +42,7 @@
   margin-bottom: 19px;
 }
 
-.link__icon {
+.portfolio__link--icon {
   background-image: url(../../../images/portflioArrow.svg);
   background-repeat: no-repeat;
   width: 29px;
@@ -51,7 +51,7 @@
 }
 
 @media screen and (max-width: 800px) {
-  .link__text {
+  .portfolio__link--text {
     font-size: 28px;
   }
   .portfolio {
@@ -66,7 +66,7 @@
   }
 }
 @media screen and (max-width: 460px) {
-  .link__text {
+  .portfolio__link--text {
     font-size: 18px;
     line-height: 28px;
   }

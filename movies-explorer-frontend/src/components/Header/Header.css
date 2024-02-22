@@ -1,4 +1,4 @@
-.header_main {
+.header--main {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -28,7 +28,7 @@
   .header {
     padding: 18px 14px;
   }
-  .header_main {
+  .header--main {
     padding: 18px 14px;
   }
 

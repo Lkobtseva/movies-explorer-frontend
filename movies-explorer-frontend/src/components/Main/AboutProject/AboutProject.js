@@ -4,7 +4,7 @@ import Title from "../Title/Title";
 function AboutProject(props) {
   return (
     <>
-      <Title title="О проекте" id="about-project" />
+      <Title title="О проекте" id="aboutProject" />
       <section className="about-project">
         <article className="about-project__tabl">
           <h3 className="about-project__title">

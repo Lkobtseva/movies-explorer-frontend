@@ -1,4 +1,6 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+
 import Header from "../Header/Header";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
 
@@ -11,6 +13,11 @@ function Profile(props) {
     goToLogin,
     margin,
   } = props;
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate('/signin'); 
+  };
   return (
     <>
       <BurgerMenu
@@ -33,12 +40,15 @@ function Profile(props) {
             <span className="profile__container">
               <span className="profile__span">Имя</span>
               <input
+              placeholder="Введите имя"
                 className="profile__input"
                 id="profile-name"
                 name="name"
                 type="text"
                 defaultValue="Виталий"
                 required
+                minLength={2}
+                maxLength={30}
               />
             </span>
             <span className="profile__input-error"></span>
@@ -47,6 +57,7 @@ function Profile(props) {
             <span className="profile__container">
               <span className="profile__span">E-mail</span>
               <input
+              placeholder="Введите почту"
                 className="profile__input"
                 id="profile-email"
                 name="email"
@@ -62,7 +73,7 @@ function Profile(props) {
           </span>
           <button className="profile__btn">Редактировать</button>
         </form>
-        <button className="profile__btn profile__btn_logout">
+        <button className="profile__btn profile__btn_logout" onClick={handleLogout}>
           Выйти из аккаунта
         </button>
       </main>

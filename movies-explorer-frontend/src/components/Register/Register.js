@@ -12,11 +12,14 @@ function Register() {
             <label htmlFor="reg-name" className="form__label">
               Имя
               <input
+              placeholder="Введите имя"
                 className="form__input"
                 id="reg-name"
                 name="name"
                 type="text"
                 required
+                minLength={2}
+                maxLength={30}
               />
               <span className="form__input-error"></span>
             </label>
@@ -24,6 +27,7 @@ function Register() {
             <label htmlFor="reg-email" className="form__label">
               E-mail
               <input
+              placeholder="Введите почту"
                 className="form__input"
                 id="reg-email"
                 name="email"
@@ -36,11 +40,14 @@ function Register() {
             <label htmlFor="reg-pass" className="form__label">
               Пароль
               <input
+              placeholder="Придумайте пароль"
                 className="form__input form__input_error"
                 id="reg-pass"
                 name="password"
                 type="password"
                 required
+                minLength={3}
+                maxLength={30}
               />
               <span className="form__input-error">Что-то пошло не так...</span>
             </label>
