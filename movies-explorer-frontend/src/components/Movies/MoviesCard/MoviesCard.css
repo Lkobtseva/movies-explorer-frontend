@@ -1,0 +1,103 @@
+.movie-card {
+  width: 360px;
+  margin: 0;
+  position: relative;
+  background: #222222;
+  padding-bottom: 19px;
+  border-radius: 5%;
+}
+
+.movie-card__btn {
+  position: absolute;
+  bottom: 47px;
+  right: 14px;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background-image: url(../../../images/isliked.svg);
+}
+
+.movie-card__btn:hover {
+  opacity: 0.8;
+}
+
+.movie-card:hover .movie-card__btn {
+  visibility: visible;
+  transition: visibility 0.3s;
+}
+
+.movie-card__figure {
+  margin: 0;
+}
+
+.movie-card__link {
+  background-color: red;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.movie-card__image {
+  cursor: pointer;
+  display: block;
+  width: 360px;
+  height: 201px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.movie-card__figcaption {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 12px 0 12px;
+}
+
+.movie-card__title {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+  margin: 14px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: white;
+}
+
+.movie-card__duration {
+  width: 52px;
+  height: 18px;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 10px;
+  color: #8b8b8b;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  margin: 9px 0 0;
+}
+
+@media screen and (max-width: 910px) {
+  .movie-card {
+    width: 339px;
+  }
+  .movie-card__image {
+    width: 339px;
+    height: 190px;
+  }
+  .movie-card__figcaption {
+    padding: 0;
+  }
+}
+
+@media screen and (max-width: 530px) {
+  .movie-card {
+    width: 300px;
+  }
+  .movie-card__image {
+    width: 300px;
+    height: 168px;
+  }
+}

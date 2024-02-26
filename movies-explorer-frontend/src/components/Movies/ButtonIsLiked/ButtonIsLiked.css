@@ -1,0 +1,13 @@
+.btn-liked {
+  width: 15px;
+  height: 15px;
+  border-radius: 50px;
+  background-color: #2BE080;
+  background-position: center;
+  background-repeat: no-repeat;
+  object-fit: cover;
+}
+
+.btn-liked:hover {
+  opacity: 0.8;
+}
