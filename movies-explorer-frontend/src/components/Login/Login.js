@@ -1,42 +1,74 @@
 import React from "react";
 import Form from "../Form/Form";
 import FormCaption from "../FormCaption/FormCaption";
+import useValidation from "../../hooks/useValidation";
+import { Navigate } from "react-router-dom";
 
-function Login() {
+function Login(props) {
+  const { values, errors, onChange, resetValidation, isFormValid } =
+    useValidation();
+  const { loggedIn, onSubmitLogin, errorMessage, setErrorMessage } = props;
+
+  React.useEffect(() => {
+    setErrorMessage("");
+    resetValidation({ email: "", password: "" });
+  }, []);
+
+  if (loggedIn) {
+    return <Navigate to="/movies" replace />;
+  }
+
+  function handleSubmitLogin(evt) {
+    evt.preventDefault();
+    onSubmitLogin(values);
+  }
+
+  function getInputClassName(param) {
+    const inputClassName =
+      `form__input ` + (errors[param] ? "form__input_error" : "");
+    return inputClassName;
+  }
   return (
     <section className="login">
       <Form
         title="Рады видеть!"
+        labelSubmit="Войти"
+        param="log"
+        onSubmit={handleSubmitLogin}
+        isFormValid={isFormValid}
+        errorMessage={errorMessage}
         children={
           <>
             <label htmlFor="reg-email" className="form__label">
               E-mail
               <input
-                className="form__input"
+                className={getInputClassName("email")}
                 id="reg-email"
                 name="email"
                 type="email"
+                onChange={onChange}
+                value={values.email || ""}
+                minLength="2"
+                maxLength="30"
                 required
-                placeholder="Введите почту"
               />
-              <span className="form__input-error"></span>
+              <span className="form__input-error">{errors.email || ""}</span>
             </label>
             <label htmlFor="reg-pass" className="form__label">
               Пароль
               <input
-                className="form__input"
+                className={getInputClassName("password")}
                 id="reg-pass"
                 name="password"
                 type="password"
+                onChange={onChange}
+                value={values.password || ""}
                 required
-                placeholder="Введите пароль"
               />
-              <span className="form__input-error"></span>
+              <span className="form__input-error">{errors.password || ""}</span>
             </label>
           </>
         }
-        labelSubmit="Войти"
-        param="log"
       />
       <FormCaption
         text="Ещё не зарегистрированы?"

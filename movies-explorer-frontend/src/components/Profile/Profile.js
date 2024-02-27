@@ -1,23 +1,67 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import useValidation from "../../hooks/useValidation";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import Header from "../Header/Header";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
 
 function Profile(props) {
+  const {
+    values,
+    errors,
+    onChange,
+    resetValidation,
+    isFormValid,
+    setIsFormValid,
+  } = useValidation();
+  const currentUser = React.useContext(CurrentUserContext);
   const {
     loggedIn,
     isMenuOpen,
     handleMenuOpen,
     goToProfile,
     goToLogin,
+    signOut,
+    errorMessage,
+    setErrorMessage,
+    onSubmitUpdateUserInfo,
     margin,
   } = props;
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    navigate('/signin'); 
-  };
+  const buttonSubmitClassName =
+    `profile__btn ` + (!isFormValid ? "profile__btn_disable" : "");
+
+  React.useEffect(() => {
+    resetValidation(
+      { name: currentUser.name, email: currentUser.email },
+      { name: "", email: "" }
+    );
+    setIsFormValid(false);
+  }, [currentUser]);
+
+  React.useEffect(() => {
+    setErrorMessage("");
+  }, []);
+
+  function handleSubmitUpdateUserInfo(evt) {
+    evt.preventDefault();
+    onSubmitUpdateUserInfo({ name: values.name, email: values.email });
+    resetValidation();
+  }
+
+  function handleOnChange(evt) {
+    onChange(evt);
+    const currentValue = { ...values };
+    const { name, value } = evt.target;
+    currentValue[name] = value;
+    if (
+      currentUser.name === currentValue.name &&
+      currentUser.email === currentValue.email
+    ) {
+      setIsFormValid(false);
+    }
+  }
+
   return (
     <>
       <BurgerMenu
@@ -34,46 +78,48 @@ function Profile(props) {
         margin={margin}
       />
       <main className="profile">
-        <h1 className="profile__title">Привет, Виталий!</h1>
-        <form className="profile__form">
+        <h1 className="profile__title">Привет, {currentUser.name}!</h1>
+        <form className="profile__form" onSubmit={handleSubmitUpdateUserInfo}>
           <label htmlFor="profile-name" className="profile__label">
             <span className="profile__container">
               <span className="profile__span">Имя</span>
               <input
-              placeholder="Введите имя"
+                placeholder="Введите имя"
                 className="profile__input"
                 id="profile-name"
                 name="name"
                 type="text"
-                defaultValue="Виталий"
+                onChange={handleOnChange}
+                value={values.name || ""}
                 required
                 minLength={2}
                 maxLength={30}
               />
             </span>
-            <span className="profile__input-error"></span>
+            <span className="profile__input-error">{errors.name}</span>
           </label>
           <label htmlFor="profile-email" className="profile__label">
             <span className="profile__container">
               <span className="profile__span">E-mail</span>
               <input
-              placeholder="Введите почту"
+                placeholder="Введите почту"
                 className="profile__input"
                 id="profile-email"
                 name="email"
                 type="text"
-                defaultValue="pochta@yandex.ru"
+                onChange={handleOnChange}
+                value={values.email || ""}
                 required
               />
             </span>
-            <span className="profile__input-error"></span>
+            <span className="profile__input-error">{errors.email}</span>
           </label>
-          <span className="profile__input-error">
-            При обновлении профиля произошла ошибка.
-          </span>
-          <button className="profile__btn">Редактировать</button>
+          <span className="profile__input-error">{errorMessage} </span>
+          <button className={buttonSubmitClassName} disabled={!isFormValid}>
+            Редактировать
+          </button>
         </form>
-        <button className="profile__btn profile__btn_logout" onClick={handleLogout}>
+        <button className="profile__btn profile__btn_logout" onClick={signOut}>
           Выйти из аккаунта
         </button>
       </main>

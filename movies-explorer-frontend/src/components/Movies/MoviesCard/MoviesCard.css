@@ -64,6 +64,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: white;
+  max-width: 300px
 }
 
 .movie-card__duration {
