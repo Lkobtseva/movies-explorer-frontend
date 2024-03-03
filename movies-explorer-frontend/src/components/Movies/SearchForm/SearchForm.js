@@ -1,23 +1,29 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
 import find from "../../../images/find.svg";
 
 function SearchForm(props) {
-  const { values, onChange, isFormValid, onSubmitSearch } = props;
-  const buttonSearchClassName =
-    `search-form__submit-btn ` +
-    (!isFormValid ? "search-form__submit-btn_disable" : "");
+  const { data, onChange, isFormValid, onSubmitSearch } = props;
+  const [errorMessage, setErrorMessage] = useState(''); 
+
+    const buttonSearchClassName =
+    `search-form__submit-btn ${!isFormValid || errorMessage ? "search-form__submit-btn_disable" : ""}`;
 
   function handleSearch(evt) {
     evt.preventDefault();
-    onSubmitSearch(values);
+    if (data.film.trim() === '') {
+      setErrorMessage('Нужно ввести ключевое слово');
+    } else {
+      setErrorMessage(''); 
+      onSubmitSearch(data);
+    }
   }
 
-  React.useEffect(() => {
-    if (values.film) {
-      onSubmitSearch(values);
+  useEffect(() => {
+    if (data.film) {
+      onSubmitSearch(data);
     }
-  }, [values.shortFilm]);
+  }, [data.shortFilm]);
 
   return (
     <section className="search-form">
@@ -26,10 +32,10 @@ function SearchForm(props) {
           <input
             className="search-form__input"
             name="film"
-            value={values.film || ""}
+            value={data.film || ""}
             placeholder="Фильм"
             onChange={onChange}
-            required
+            
           ></input>
           <button
               className={buttonSearchClassName}
@@ -39,7 +45,7 @@ function SearchForm(props) {
             <img src={find} alt="Поиск" className="search-form__icon" />
           </button>
         </div>
-        <FilterCheckbox onChange={onChange} onSubmitSearch={onSubmitSearch} isFormValid={isFormValid} values={values}/>
+        <FilterCheckbox onChange={onChange} onSubmitSearch={onSubmitSearch} isFormValid={isFormValid} data={data}/>
       </form>
     </section>
   );

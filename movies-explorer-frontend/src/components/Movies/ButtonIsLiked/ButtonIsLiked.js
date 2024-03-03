@@ -1,11 +1,11 @@
 import React from "react";
 
 function ButtonIsLiked(props) {
-  const { handleClickLikedToggle } = props;
+  const { handleLikeToggle } = props;
   return (
     <button
       className="btn-liked movie-card__btn"
-      onClick={handleClickLikedToggle}
+      onClick={handleLikeToggle}
     />
   );
 }

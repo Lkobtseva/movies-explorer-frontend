@@ -1,20 +1,20 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
 import useValidation from "../../hooks/useValidation";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import Header from "../Header/Header";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
 
 function Profile(props) {
+  const currentUser = React.useContext(CurrentUserContext);
   const {
-    values,
+    data,
     errors,
     onChange,
     resetValidation,
     isFormValid,
     setIsFormValid,
+    setData
   } = useValidation();
-  const currentUser = React.useContext(CurrentUserContext);
   const {
     loggedIn,
     isMenuOpen,
@@ -24,43 +24,41 @@ function Profile(props) {
     signOut,
     errorMessage,
     setErrorMessage,
-    onSubmitUpdateUserInfo,
-    margin,
+    onSubmitUserInfo,
   } = props;
 
-  const buttonSubmitClassName =
-    `profile__btn ` + (!isFormValid ? "profile__btn_disable" : "");
-
-  React.useEffect(() => {
-    resetValidation(
-      { name: currentUser.name, email: currentUser.email },
-      { name: "", email: "" }
-    );
+  useEffect(() => {
+    resetValidation({ name: currentUser.name, email: currentUser.email });
+    //setData({ name: "", email: "" });
     setIsFormValid(false);
-  }, [currentUser]);
+  }, [currentUser, resetValidation, setData, setIsFormValid]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setErrorMessage("");
-  }, []);
+  }, [setErrorMessage]);
 
-  function handleSubmitUpdateUserInfo(evt) {
+  function updateUserInfo(evt) {
     evt.preventDefault();
-    onSubmitUpdateUserInfo({ name: values.name, email: values.email });
+    onSubmitUserInfo({ name: data.name, email: data.email });
+    //setIsFormValid(false);
     resetValidation();
   }
 
-  function handleOnChange(evt) {
+  function handleProfileChange(evt) {
     onChange(evt);
-    const currentValue = { ...values };
     const { name, value } = evt.target;
-    currentValue[name] = value;
-    if (
-      currentUser.name === currentValue.name &&
-      currentUser.email === currentValue.email
-    ) {
-      setIsFormValid(false);
-    }
+    setData((prevData) => {
+      const newData = { ...prevData, [name]: value };
+      setIsFormValid(!isSameUserData(newData, currentUser));
+      return newData;
+    });
   }
+
+  function isSameUserData(data, user) {
+    return data.name === user.name && data.email === user.email;
+  }
+
+  const buttonSubmitClassName = `profile__btn ${isFormValid ? "" : "profile__btn_disable"}`;
 
   return (
     <>
@@ -75,11 +73,10 @@ function Profile(props) {
         handleMenuOpen={handleMenuOpen}
         goToProfile={goToProfile}
         goToLogin={goToLogin}
-        margin={margin}
       />
       <main className="profile">
         <h1 className="profile__title">Привет, {currentUser.name}!</h1>
-        <form className="profile__form" onSubmit={handleSubmitUpdateUserInfo}>
+        <form className="profile__form" onSubmit={updateUserInfo}>
           <label htmlFor="profile-name" className="profile__label">
             <span className="profile__container">
               <span className="profile__span">Имя</span>
@@ -89,8 +86,8 @@ function Profile(props) {
                 id="profile-name"
                 name="name"
                 type="text"
-                onChange={handleOnChange}
-                value={values.name || ""}
+                onChange={handleProfileChange}
+                value={data.name || ""}
                 required
                 minLength={2}
                 maxLength={30}
@@ -107,8 +104,8 @@ function Profile(props) {
                 id="profile-email"
                 name="email"
                 type="text"
-                onChange={handleOnChange}
-                value={values.email || ""}
+                onChange={handleProfileChange}
+                value={data.email || ""}
                 required
               />
             </span>

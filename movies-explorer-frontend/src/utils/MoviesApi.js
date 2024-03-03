@@ -7,7 +7,7 @@ function getResponseData(res) {
   return res.json();
 }
 
-export function getMovies() {
+export function getMoviesList() {
   return fetch (BASE_URL, {
     method: 'GET',
     headers: {

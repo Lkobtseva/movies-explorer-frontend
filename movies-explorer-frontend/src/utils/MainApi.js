@@ -1,91 +1,109 @@
-//const {PUBLIC_URL} = process.env;
-const BASE_URL = "https://api.likobtseva.nomoredomainsmonster.ru"; 
-const HEADERS = {'Content-Type': 'application/json'};
+const API_BASE_URL = "https://api.likobtseva.nomoredomainsmonster.ru";
 
-function getResponseData(res) {
-    if (!res.ok) {
-      return Promise.reject(res.json());
-    }
-    return res.json();
+function handleResponse(res) {
+  if (!res.ok) {
+    return Promise.reject(res.json());
+  }
+  return res.json();
 }
-export function register(values) {
-  return fetch (`${BASE_URL}/signup`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify({name: values.name, email: values.email, password: values.password})
-  })
-  .then(res=> getResponseData(res))
-}
-
-export function login(values) {
-  return fetch (`${BASE_URL}/signin`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify({email: values.email, password: values.password})
-  })
-  .then(res=> getResponseData(res))
-  .then(res=> {localStorage.setItem('token', res.token)})
-}
-
 export function checkToken(jwt) {
-  return fetch (`${BASE_URL}/users/me`, {
-    method: 'GET',
-    headers: {...HEADERS, 'Authorization': `Bearer ${jwt}`}
-  })
-  .then(res=> getResponseData(res))
+  return fetch(`${API_BASE_URL}/users/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
+  }).then((res) => handleResponse(res));
 }
-
-export function getUserInfo(jwt) {
-  return fetch (`${BASE_URL}/users/me`, {
-    method: 'GET',
-    headers: {...HEADERS, 'Authorization': `Bearer ${jwt}`}
-  })
-  .then(res=> getResponseData(res))
-}
-
-export function updateUserInfo(values, jwt) {
-      return fetch(`${BASE_URL}/users/me`, {
-        method: 'PATCH',
-        headers: {...HEADERS, 'Authorization': `Bearer ${jwt}`},
-        body: JSON.stringify({name: values.name, email: values.email})
-      })
-        .then(res => getResponseData(res))
-    }
-
-export function getSaveMovies(jwt) {
-  return fetch(`${BASE_URL}/movies`, {
-    method: 'GET',
-    headers: {...HEADERS, 'Authorization': `Bearer ${jwt}`}
-  })
-  .then(res=> getResponseData(res))
-}
-
-export function postSaveMovie(movie, jwt) {
-  return fetch(`${BASE_URL}/movies`, {
-    method: 'POST',
-    headers: {...HEADERS, 'Authorization': `Bearer ${jwt}`},
+export function signUpUser(userData) {
+  return fetch(`${API_BASE_URL}/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      country: movie.country,
-      director: movie.director,
-      duration: movie.duration,
-      year: movie.year,
-      description: movie.description,
-      image: `https://api.nomoreparties.co${movie.image.url}`,
-      trailerLink: movie.trailerLink,
-      nameRU: movie.nameRU,
-      nameEN: movie.nameEN,
-      thumbnail: `https://api.nomoreparties.co${movie.image.formats.thumbnail.url}`,
-      movieId: movie.id
-    })
-  })
-  .then(res=> getResponseData(res))
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+    }),
+  }).then((res) => handleResponse(res));
 }
 
-export function deleteSaveMovie(movieId, jwt) {
-  return fetch(`${BASE_URL}/movies/${movieId}`, {
-    method: 'DELETE',
-    headers: {...HEADERS, 'Authorization': `Bearer ${jwt}`},
+export function logInUser(credentials) {
+  return fetch(`${API_BASE_URL}/signin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: credentials.email,
+      password: credentials.password,
+    }),
   })
-  .then(res=> getResponseData(res))
-  .catch(error => console.error('Ошибка при удалении фильма:', error));
+    .then((res) => handleResponse(res))
+    .then((res) => {
+      localStorage.setItem("token", res.token);
+    });
+}
+
+export function fetchUserData(jwt) {
+  return fetch(`${API_BASE_URL}/users/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
+  }).then((res) => handleResponse(res));
+}
+
+export function updateUserData(userData, jwt) {
+  return fetch(`${API_BASE_URL}/users/me`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
+    body: JSON.stringify({ name: userData.name, email: userData.email }),
+  }).then((res) => handleResponse(res));
+}
+
+export function fetchSavedMovies(jwt) {
+  return fetch(`${API_BASE_URL}/movies`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
+  }).then((res) => handleResponse(res));
+}
+
+export function saveMovie(movieData, jwt) {
+  return fetch(`${API_BASE_URL}/movies`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
+    body: JSON.stringify({
+      country: movieData.country,
+      director: movieData.director,
+      duration: movieData.duration,
+      year: movieData.year,
+      description: movieData.description,
+      image: `https://api.nomoreparties.co${movieData.image.url}`,
+      trailerLink: movieData.trailerLink,
+      nameRU: movieData.nameRU,
+      nameEN: movieData.nameEN,
+      thumbnail: `https://api.nomoreparties.co${movieData.image.formats.thumbnail.url}`,
+      movieId: movieData.id,
+    }),
+  }).then((res) => handleResponse(res));
+}
+
+export function removeSavedMovie(movieId, jwt) {
+  return fetch(`${API_BASE_URL}/movies/${movieId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
+  })
+    .then((res) => handleResponse(res))
+    .catch((error) => console.error("Error deleting movie:", error));
 }

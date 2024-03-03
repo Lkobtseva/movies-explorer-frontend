@@ -1,7 +1,7 @@
 import React from "react";
 
 function FilterCheckbox(props) {
-  const { values, onChange } = props;
+  const { data, onChange } = props;
 
   return (
     <div className="filter-checkbox">
@@ -10,7 +10,7 @@ function FilterCheckbox(props) {
           id="check-box"
           type="checkbox"
           name="shortFilm"
-          checked={values.shortFilm ?? false}
+          checked={data.shortFilm ?? false}
           onChange={onChange}
           pattern=""
         />

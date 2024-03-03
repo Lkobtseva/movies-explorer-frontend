@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import SearchForm from "../Movies/SearchForm/SearchForm";
@@ -8,28 +8,27 @@ import Preloader from "../Movies/PreLoader/PreLoader";
 import useValidation from "../../hooks/useValidation";
 
 function SavedMovies(props) {
+  const { data, onChange, isFormValid } = useValidation();
+
   const {
+    isLoading,
     loggedIn,
-    isMenuOpen,
-    handleMenuOpen,
+    setErrorMessage,
     goToProfile,
     goToLogin,
+    isMenuOpen,
+    handleMenuOpen,
+    addLike,
     savedMoviesList,
-    onClickLiked,
     onSubmitSaveSearch,
-    loadSavedMovies,
-    errorMessage,
-    setErrorMessage,
-    isLoader,
-    margin,
+    getSaved,
   } = props;
 
-  const { values, onChange, isFormValid } = useValidation();
-
-  React.useEffect(()=> {
-    loadSavedMovies();
+  useEffect(() => {
+    getSaved();
     setErrorMessage("");
   }, []);
+
   return (
     <>
       <BurgerMenu
@@ -43,22 +42,25 @@ function SavedMovies(props) {
         handleMenuOpen={handleMenuOpen}
         goToProfile={goToProfile}
         goToLogin={goToLogin}
-        margin={margin}
       />
       <main className="saved-movies">
-      <SearchForm
-          values={values}
+        <SearchForm
+          data={data}
           onChange={onChange}
-          isFormValid={isFormValid}
           onSubmitSearch={onSubmitSaveSearch}
+          isFormValid={isFormValid}
         />
-        <span className="not-found-message">{errorMessage}</span>
-        <Preloader isLoader={isLoader}/>
-        <MoviesCardList
-          page="saved-movies"
-          moviesList={savedMoviesList}
-          onClickLiked={onClickLiked}
-        />
+        {savedMoviesList.length === 0 && (
+          <span className="not-found-message">У вас пока нет сохраненных фильмов</span>
+        )}
+        <Preloader isLoading={isLoading} />
+        {savedMoviesList.length > 0 && (
+          <MoviesCardList
+            page="saved-movies"
+            moviesList={savedMoviesList} 
+            addLike={addLike}
+          />
+        )}
       </main>
       <Footer />
     </>

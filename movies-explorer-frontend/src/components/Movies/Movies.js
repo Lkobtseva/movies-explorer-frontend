@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import SearchForm from "./SearchForm/SearchForm";
@@ -7,81 +7,94 @@ import ButtonMore from "./ButtonMore/ButtonMore";
 import Preloader from "./PreLoader/PreLoader";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import useValidation from "../../hooks/useValidation";
+import { useWindowWidth } from "@react-hook/window-size";
 
 function Movies(props) {
   const {
     loggedIn,
     isMenuOpen,
-    handleMenuOpen,
     goToProfile,
     goToLogin,
-    margin,
+    handleMenuOpen,
     onSubmitSearch,
-    filterMoviesList,
-    filterFilmList,
-    windowWidth,
-    numberLastFilm,
-    setNumberLastFilm,
-    enrichMoviersFromLocalStorageWithLikes,
-    onClickLiked,
+    recentFilm,
+    filteredMoviesList,
+    setRecentFilm,
+    filterFilms,
+    addLike,
+    updateMoviesWithLikes,
+    isLoading,
     errorMessage,
     setErrorMessage,
-    isLoader,
   } = props;
-  const { values, onChange, isFormValid, setValues } = useValidation();
-  const [filterAndLimitedMoviesList, setFilterAndLimitedMoviesList] =
-    React.useState([]);
+  
+  const { data, onChange, isFormValid, setData } = useValidation();
+  const [filteredAndLimitedMoviesList, setFilteredAndLimitedMoviesList] = useState([]);
+  const [currentWindowWidth, setCurrentWindowWidth] = useState(useWindowWidth());
 
-  React.useEffect(() => {
-    setErrorMessage("");
-    const filterFilmParam = JSON.parse(localStorage.getItem("filterParam"));
-    if (filterFilmParam) {
-      setValues(filterFilmParam);
-    }
-    const filterFilmListFromLocalStorage = JSON.parse(localStorage.getItem("filterFilmList"));
-    if(filterFilmListFromLocalStorage) {
-
-      enrichMoviersFromLocalStorageWithLikes(filterFilmListFromLocalStorage);
-    } else if (filterFilmParam) {
-      filterFilmList();
-    }
+  useEffect(() => {
+    initializeData(setData);
+    initializeFilteredFilms();
   }, []);
 
-  React.useEffect(() => {
-    let limit;
-
-    if (numberLastFilm !== undefined) {
-      limit = numberLastFilm;
-    } else {
-      if (windowWidth >= 1280) {
-        limit = 12;
-      } else if (windowWidth >= 768) {
-        limit = 8;
-      }
-      else {
-        limit = 5;
-      }
+  const initializeData = (setData) => {
+    setErrorMessage("");
+    const filterParam = JSON.parse(localStorage.getItem("filter"));
+    if (filterParam) {
+      setData(filterParam);
     }
-      if (limit > filterMoviesList.length) {
-        setFilterAndLimitedMoviesList(filterMoviesList);
-        setNumberLastFilm(limit);
+  };
+
+  const initializeFilteredFilms = () => {
+    const filterFilmsFromLocalStorage = JSON.parse(localStorage.getItem("filteredFilmList"));
+    if (filterFilmsFromLocalStorage) {
+      updateMoviesWithLikes(filterFilmsFromLocalStorage);
+    } else if (data) {
+      filterFilms();
+    }
+  };
+
+  useEffect(() => {
+    const max = calculateLimit();
+    const newList = filteredMoviesList.slice(0, max);
+    setFilteredAndLimitedMoviesList(newList);
+    setRecentFilm(max);
+    console.log("filteredMoviesList length:", filteredMoviesList.length);
+    console.log("filteredAndLimitedMoviesList length:", filteredAndLimitedMoviesList.length);
+  }, [filteredMoviesList, currentWindowWidth]);
+
+  const calculateLimit = () => {
+    if (recentFilm !== undefined) {
+      return recentFilm;
+    } else {
+      if (currentWindowWidth >= 1280) {
+        return 12;
+      } else if (currentWindowWidth >= 768) {
+        return 8;
       } else {
-        let newList = [];
-        for (let i = 0; i < limit; i++) {
-          newList.push(filterMoviesList[i]);
-        }
-        setFilterAndLimitedMoviesList(newList);
-        setNumberLastFilm(limit);
+        return 5;
       }
-  }, [filterMoviesList, numberLastFilm]);
-
-  function handleClickMore() {
-    if (windowWidth >= 1280) {
-      setNumberLastFilm(numberLastFilm + 3)
-    } else {
-      setNumberLastFilm(numberLastFilm + 2)
     }
-  }
+  };
+
+  const handleAddMore = () => {
+    const increment = currentWindowWidth >= 1280 ? 3 : 2;
+    const newLimit = recentFilm + increment;
+    const newList = filteredMoviesList.slice(0, newLimit);
+    setFilteredAndLimitedMoviesList(newList);
+    setRecentFilm(newLimit);
+  };
+
+  // изменение размера окна браузера
+  useEffect(() => {
+    const handleResize = () => {
+      setCurrentWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   return (
     <>
       <BurgerMenu
@@ -95,28 +108,25 @@ function Movies(props) {
         handleMenuOpen={handleMenuOpen}
         goToProfile={goToProfile}
         goToLogin={goToLogin}
-        margin={margin}
       />
-         <main className="movies">
+      <main className="movies">
         <SearchForm
-          values={values}
-          onChange={onChange}
+          data={data}
           isFormValid={isFormValid}
+          onChange={onChange}
           onSubmitSearch={onSubmitSearch}
         />
         <span className="not-found-message">{errorMessage}</span>
-        <Preloader isLoader={isLoader}/>
+        <Preloader isLoading={isLoading}/>
         <MoviesCardList
           page="movies"
-          moviesList={filterAndLimitedMoviesList}
-          onClickLiked={onClickLiked}
+          addLike={addLike}
+          moviesList={filteredAndLimitedMoviesList}
         />
 
-        { filterMoviesList.length > filterAndLimitedMoviesList.length ? (
-          <ButtonMore handleClickMore={handleClickMore} />
-        ) : (
-          ""
-        )}
+        { filteredMoviesList.length > filteredAndLimitedMoviesList.length ? (
+          <ButtonMore handleAddMore={handleAddMore} />
+        ) : ( "" )}
       </main>
       <Footer />
     </>
