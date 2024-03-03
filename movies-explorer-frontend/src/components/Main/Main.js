@@ -11,7 +11,6 @@ function Main(props) {
     handleMenuOpen,
     goToProfile,
     goToLogin,
-    margin,
   } = props;
   return (
     <>
@@ -26,7 +25,6 @@ function Main(props) {
         handleMenuOpen={handleMenuOpen}
         goToProfile={goToProfile}
         goToLogin={goToLogin}
-        margin={margin}
       />
       <MainContent />
       <Footer />

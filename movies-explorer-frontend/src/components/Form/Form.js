@@ -3,10 +3,8 @@ import HeaderLogo from "../Header/HeaderLogo/HeaderLogo";
 
 function Form(props) {
   const { param, title, children, labelSubmit, isFormValid, onSubmit, errorMessage } = props;
-  const buttonSubmitClassName =
-    `form__btn-submit ` +
-    (!isFormValid ? "form__btn-submit_disable" : "");
-  const submitErrorClassName = `form__input-error form__input-error_server + form__input-error_${param}`;
+  const buttonSubmitClassName = `form__btn-submit ${isFormValid ? '' : 'form__btn-submit_disable'}`;
+  const submitErrorClassName = `form__input-error form__input-error_server form__input-error_${param}`;
 
   return (
     <div className="form">

@@ -11,7 +11,6 @@ function Header(props) {
     handleMenuOpen,
     goToProfile,
     goToLogin,
-    margin,
   } = props;
   const location = useLocation();
   const headerClassName = ` ${

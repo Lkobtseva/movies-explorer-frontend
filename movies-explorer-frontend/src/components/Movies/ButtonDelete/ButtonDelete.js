@@ -1,9 +1,9 @@
 import React from "react";
 
 function ButtonDelete(props) {
-  const { handleClickLikedToggle } = props;
+  const { handleLikeToggle } = props;
   return (
-    <button className="btn-delete" onClick={handleClickLikedToggle}></button>
+    <button className="btn-delete" onClick={handleLikeToggle}></button>
   );
 }
 

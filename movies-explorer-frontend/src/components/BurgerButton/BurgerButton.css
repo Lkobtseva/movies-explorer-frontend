@@ -10,7 +10,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: fixed;
+  /*position: fixed;*/
   top: 15px;
   right: 30px;
 }
@@ -48,6 +48,9 @@
 
 .burger-button__icon_close {
   background-color: transparent;
+  position: fixed;
+    width: 30px;
+    right: 22px;
 }
 
 .burger-button__icon_close::after {
