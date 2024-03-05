@@ -9,6 +9,10 @@ import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import useValidation from "../../hooks/useValidation";
 import { useWindowWidth } from "@react-hook/window-size";
 
+// Константы для длительности короткометражек и количества фильмов
+const INITIAL_MOVIES_COUNT = 12;
+const ADDITIONAL_MOVIES_COUNT = 3;
+
 function Movies(props) {
   const {
     loggedIn,
@@ -27,10 +31,13 @@ function Movies(props) {
     errorMessage,
     setErrorMessage,
   } = props;
-  
+
   const { data, onChange, isFormValid, setData } = useValidation();
-  const [filteredAndLimitedMoviesList, setFilteredAndLimitedMoviesList] = useState([]);
-  const [currentWindowWidth, setCurrentWindowWidth] = useState(useWindowWidth());
+  const [filteredAndLimitedMoviesList, setFilteredAndLimitedMoviesList] =
+    useState([]);
+  const [currentWindowWidth, setCurrentWindowWidth] = useState(
+    useWindowWidth()
+  );
 
   useEffect(() => {
     initializeData(setData);
@@ -46,7 +53,9 @@ function Movies(props) {
   };
 
   const initializeFilteredFilms = () => {
-    const filterFilmsFromLocalStorage = JSON.parse(localStorage.getItem("filteredFilmList"));
+    const filterFilmsFromLocalStorage = JSON.parse(
+      localStorage.getItem("filteredFilmList")
+    );
     if (filterFilmsFromLocalStorage) {
       updateMoviesWithLikes(filterFilmsFromLocalStorage);
     } else if (data) {
@@ -59,8 +68,6 @@ function Movies(props) {
     const newList = filteredMoviesList.slice(0, max);
     setFilteredAndLimitedMoviesList(newList);
     setRecentFilm(max);
-    console.log("filteredMoviesList length:", filteredMoviesList.length);
-    console.log("filteredAndLimitedMoviesList length:", filteredAndLimitedMoviesList.length);
   }, [filteredMoviesList, currentWindowWidth]);
 
   const calculateLimit = () => {
@@ -68,17 +75,17 @@ function Movies(props) {
       return recentFilm;
     } else {
       if (currentWindowWidth >= 1280) {
-        return 12;
+        return INITIAL_MOVIES_COUNT;
       } else if (currentWindowWidth >= 768) {
-        return 8;
+        return INITIAL_MOVIES_COUNT - ADDITIONAL_MOVIES_COUNT;
       } else {
-        return 5;
+        return INITIAL_MOVIES_COUNT - 2 * ADDITIONAL_MOVIES_COUNT;
       }
     }
   };
 
   const handleAddMore = () => {
-    const increment = currentWindowWidth >= 1280 ? 3 : 2;
+    const increment = currentWindowWidth >= 1280 ? ADDITIONAL_MOVIES_COUNT : 2;
     const newLimit = recentFilm + increment;
     const newList = filteredMoviesList.slice(0, newLimit);
     setFilteredAndLimitedMoviesList(newList);
@@ -91,10 +98,10 @@ function Movies(props) {
       setCurrentWindowWidth(window.innerWidth);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
+
   return (
     <>
       <BurgerMenu
@@ -117,16 +124,18 @@ function Movies(props) {
           onSubmitSearch={onSubmitSearch}
         />
         <span className="not-found-message">{errorMessage}</span>
-        <Preloader isLoading={isLoading}/>
+        <Preloader isLoading={isLoading} />
         <MoviesCardList
           page="movies"
           addLike={addLike}
           moviesList={filteredAndLimitedMoviesList}
         />
 
-        { filteredMoviesList.length > filteredAndLimitedMoviesList.length ? (
+        {filteredMoviesList.length > filteredAndLimitedMoviesList.length ? (
           <ButtonMore handleAddMore={handleAddMore} />
-        ) : ( "" )}
+        ) : (
+          ""
+        )}
       </main>
       <Footer />
     </>

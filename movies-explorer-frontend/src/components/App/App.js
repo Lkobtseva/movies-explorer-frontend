@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import ProtectedRoute from "../ProtectedRoute";
 import Main from "../Main/Main";
@@ -20,6 +20,7 @@ import {
   saveMovie,
   removeSavedMovie,
 } from "../../utils/MainApi";
+const SHORT_FILM_DURATION = 40;
 
 function App() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -254,70 +255,70 @@ function App() {
 
   function applyFilter(movies, filterParam, savedMovies) {
     const { film, shortFilm = false } = filterParam;
-
+  
+    const lowercaseFilm = film.toLowerCase();
+  
     let filteredMovies = movies.filter((elem) =>
-      elem.nameRU.toLowerCase().includes(film.toLowerCase())
+      elem.nameRU.toLowerCase().includes(lowercaseFilm) ||
+      elem.nameEN.toLowerCase().includes(lowercaseFilm)
     );
-
+  
     if (shortFilm) {
-      filteredMovies = filteredMovies.filter((elem) => elem.duration <= 40);
-    } else {
-      filteredMovies = filteredMovies.filter((elem) => elem.duration > 40);
+      filteredMovies = filteredMovies.filter((elem) => elem.duration <= SHORT_FILM_DURATION);
     }
-
+  
     const savedMoviesIndex = savedMovies.reduce((acc, elem) => {
       acc[elem.movieId] = elem._id;
       return acc;
     }, {});
-
+  
     filteredMovies = filteredMovies.map((movie) => {
       const savedMovieId = savedMoviesIndex[movie.id];
       return savedMovieId ? { ...movie, _id: savedMovieId } : movie;
     });
-
+  
     return filteredMovies;
   }
 
-  function filterFilms() {
+  async function filterFilms() {
     setErrorMessage("");
     const jwt = localStorage.getItem("token");
     if (jwt) {
       setIsLoading(true);
       const filterParam = JSON.parse(localStorage.getItem("filter"));
-
-      Promise.all([loadMovieList(), fetchSavedMovies(jwt)])
-        .then((promiseResult) => {
-          const [movies, savedMovies] = promiseResult;
-
-          if (filterParam) {
-            const filterMovies = applyFilter(
-              movies,
-              filterParam,
-              savedMovies
-            );
-
-            if (filterMovies.length === 0) {
-              setErrorMessage("Ничего не найдено");
-            }
-
-            setFilteredMoviesList(filterMovies);
-          } else {
-            localStorage.removeItem("filteredFilmList");
-            setFilteredMoviesList([]);
-          }
-          setRecentFilm(undefined);
-        })
-        .catch((err) =>
-          setErrorMessage(
-            "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
-          )
-        )
-        .finally(() => setIsLoading(false));
+      const shortFilm = JSON.parse(localStorage.getItem("shortFilm")); 
+      filterParam.shortFilm = shortFilm;
+  
+      try {
+        let moviesList = JSON.parse(localStorage.getItem("moviesList"));
+        if (!moviesList) {
+          moviesList = await getMoviesList();
+          localStorage.setItem("moviesList", JSON.stringify(moviesList));
+        }
+  
+        const savedMovies = await fetchSavedMovies(jwt);
+        const filteredMovies = applyFilter(moviesList, filterParam, savedMovies);
+  
+        if (filteredMovies.length === 0) {
+          setErrorMessage("Ничего не найдено");
+        }
+  
+        setFilteredMoviesList(filteredMovies);
+        setRecentFilm(undefined);
+      } catch (err) {
+        setErrorMessage(
+          "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
+        );
+      } finally {
+        setIsLoading(false);
+      }
     }
   }
-
+  
   function onSubmitSearch(data) {
     localStorage.setItem("filter", JSON.stringify(data));
+    localStorage.setItem("shortFilm", JSON.stringify(data.shortFilm)); 
+
     filterFilms();
   }
 
@@ -330,7 +331,7 @@ function App() {
     localStorage.removeItem("filter");
     localStorage.removeItem("moviesList");
     localStorage.removeItem("filteredFilmList");
-
+    localStorage.removeItem("shortFilm");
     setFilteredMoviesList([]);
     setCurrentUser({});
     setLoggedIn(false);
@@ -357,7 +358,7 @@ function App() {
           path="/signin"
           element={
             <Login
-            loggedIn={loggedIn}
+              loggedIn={loggedIn}
               errorMessage={errorMessage}
               setErrorMessage={setErrorMessage}
               handleLogin={handleLogin}
