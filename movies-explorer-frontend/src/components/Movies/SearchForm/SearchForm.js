@@ -1,36 +1,61 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import useValidation from "../../../hooks/useValidation";
 import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
 import find from "../../../images/find.svg";
 
-function SearchForm(props) {
-  const { data, onChange, isFormValid, onSubmitSearch } = props;
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false); 
+function SearchForm({ onSubmitSearch }) {
+  const { data, onChange, isFormValid, setIsFormValid } = useValidation();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showShortFilms, setShowShortFilms] = useState(false);
 
-  const buttonSearchClassName =
-    `search-form__submit-btn ${!isFormValid || errorMessage ? "search-form__submit-btn_disable" : ""}`;
-
-  function handleSearch(evt) {
-    evt.preventDefault();
-    setIsSubmitted(true); 
-    if (!data.film || data.film.trim() === '') {
-      setErrorMessage('Нужно ввести ключевое слово');
-    } else {
-      setErrorMessage('');
-      onSubmitSearch(data);
+  useEffect(() => {
+    const savedFilm = localStorage.getItem("film");
+    if (savedFilm) {
+      onChange({ target: { name: "film", value: savedFilm } });
     }
-  }
+  }, []);
+
+  const handleInputChange = (evt) => {
+    onChange(evt);
+    localStorage.setItem("film", evt.target.value);
+  };
+
+  useEffect(() => {
+    const shortFilm = localStorage.getItem("shortFilm");
+    if (shortFilm) {
+      setShowShortFilms(JSON.parse(shortFilm));
+    }
+  }, []);
+
+  const handleCheckboxChange = (isChecked) => {
+    setShowShortFilms(isChecked);
+    localStorage.setItem("shortFilm", JSON.stringify(isChecked));
+    onSubmitSearch({ ...data, shortFilm: isChecked });
+  };
+
+  const buttonSearchClassName = `search-form__submit-btn ${
+    !isFormValid || errorMessage ? "search-form__submit-btn_disable" : ""
+  }`;
+
+  const handleSearch = (evt) => {
+    evt.preventDefault();
+    setIsSubmitted(true);
+    if (!data.film || data.film.trim() === "") {
+      setErrorMessage("Нужно ввести ключевое слово");
+      setIsFormValid(false);
+    } else {
+      setErrorMessage("");
+      setIsFormValid(true);
+      onSubmitSearch({ ...data, shortFilm: showShortFilms });
+    }
+  };
 
   useEffect(() => {
     if (isSubmitted && data.film) {
-      setErrorMessage(''); 
+      setErrorMessage("");
     }
-  }, [data, isSubmitted]); 
-
-  const handleInputChange = (evt) => {
-    const { name, value } = evt.target;
-    onChange(name, value);
-  };
+  }, [data, isSubmitted]);
 
   return (
     <section className="search-form">
@@ -52,7 +77,11 @@ function SearchForm(props) {
           </button>
         </div>
         <span className="not-found-message">{errorMessage}</span>
-        <FilterCheckbox onChange={onChange} onSubmitSearch={onSubmitSearch} isFormValid={isFormValid} data={data} />
+        <FilterCheckbox
+          label="Короткометражки"
+          onChange={handleCheckboxChange}
+          isChecked={showShortFilms}
+        />
       </form>
     </section>
   );

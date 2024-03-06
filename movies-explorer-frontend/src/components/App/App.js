@@ -214,7 +214,7 @@ function App() {
             error.then((e) => setErrorMessage(e.message));
           }
           setLoggedIn(false);
-          reject(error);
+          //reject(error);
         });
     });
   }
@@ -255,69 +255,80 @@ function App() {
 
   function applyFilter(movies, filterParam, savedMovies) {
     const { film, shortFilm = false } = filterParam;
-  
+    console.log("Short film filter1:", shortFilm);
     const lowercaseFilm = film.toLowerCase();
-  
-    let filteredMovies = movies.filter((elem) =>
-      elem.nameRU.toLowerCase().includes(lowercaseFilm) ||
-      elem.nameEN.toLowerCase().includes(lowercaseFilm)
+
+    let filteredMovies = movies.filter(
+      (elem) =>
+        elem.nameRU.toLowerCase().includes(lowercaseFilm) ||
+        elem.nameEN.toLowerCase().includes(lowercaseFilm)
     );
-  
+    console.log(shortFilm);
     if (shortFilm) {
-      filteredMovies = filteredMovies.filter((elem) => elem.duration <= SHORT_FILM_DURATION);
+      filteredMovies = filteredMovies.filter((elem) => elem.duration <= 40);
+    } else {
+      filteredMovies = filteredMovies.filter((elem) => elem.duration > 40);
     }
-  
+
     const savedMoviesIndex = savedMovies.reduce((acc, elem) => {
       acc[elem.movieId] = elem._id;
       return acc;
     }, {});
-  
+
     filteredMovies = filteredMovies.map((movie) => {
       const savedMovieId = savedMoviesIndex[movie.id];
       return savedMovieId ? { ...movie, _id: savedMovieId } : movie;
     });
-  
+
     return filteredMovies;
   }
 
-  async function filterFilms() {
+  function filterFilms() {
     setErrorMessage("");
     const jwt = localStorage.getItem("token");
     if (jwt) {
       setIsLoading(true);
       const filterParam = JSON.parse(localStorage.getItem("filter"));
-      const shortFilm = JSON.parse(localStorage.getItem("shortFilm")); 
-      filterParam.shortFilm = shortFilm;
-  
-      try {
-        let moviesList = JSON.parse(localStorage.getItem("moviesList"));
-        if (!moviesList) {
-          moviesList = await getMoviesList();
-          localStorage.setItem("moviesList", JSON.stringify(moviesList));
-        }
-  
-        const savedMovies = await fetchSavedMovies(jwt);
-        const filteredMovies = applyFilter(moviesList, filterParam, savedMovies);
-  
-        if (filteredMovies.length === 0) {
-          setErrorMessage("Ничего не найдено");
-        }
-  
-        setFilteredMoviesList(filteredMovies);
-        setRecentFilm(undefined);
-      } catch (err) {
-        setErrorMessage(
-          "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
-        );
-      } finally {
-        setIsLoading(false);
-      }
+
+      Promise.all([loadMovieList(), fetchSavedMovies(jwt)])
+        .then((promiseResult) => {
+          const [movies, savedMovies] = promiseResult;
+
+          if (filterParam) {
+            const filterMovies = applyFilter(movies, filterParam, savedMovies);
+
+            if (filterMovies.length === 0) {
+              setErrorMessage("Ничего не найдено");
+            }
+
+            setFilteredMoviesList(filterMovies);
+          } else {
+            localStorage.removeItem("filteredFilmList");
+            setFilteredMoviesList([]);
+          }
+          setRecentFilm(undefined);
+        })
+        .catch((err) =>
+          setErrorMessage(
+            "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
+          )
+        )
+        .finally(() => setIsLoading(false));
     }
   }
-  
+
   function onSubmitSearch(data) {
-    localStorage.setItem("filter", JSON.stringify(data));
-    localStorage.setItem("shortFilm", JSON.stringify(data.shortFilm)); 
+    console.log("Short film filter in onSubmitSearch:", data.shortFilm);
+
+    const searchData = {
+      film: data.film,
+      shortFilm: data.shortFilm,
+    };
+
+    localStorage.setItem("filter", JSON.stringify(searchData));
+
+    const shortFilm = Boolean(data.shortFilm);
+    localStorage.setItem("shortFilm", JSON.stringify(shortFilm));
 
     filterFilms();
   }

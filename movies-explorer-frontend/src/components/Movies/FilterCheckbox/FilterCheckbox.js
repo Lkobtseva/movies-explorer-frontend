@@ -1,26 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
-function FilterCheckbox(props) {
-  const { onChange } = props;
-  const [isChecked, setIsChecked] = useState(false);
-
-  useEffect(() => {
-    const shortFilm = JSON.parse(localStorage.getItem("shortFilm"));
-    if (shortFilm !== null) {
-      setIsChecked(shortFilm);
-      onChange({ target: { name: "shortFilm", checked: shortFilm } });
-    }
-  }, []); 
-
-  const handleChange = (evt) => {
-    if (evt && evt.target) {
-      const { checked } = evt.target;
-      setIsChecked(checked);
-      localStorage.setItem("shortFilm", JSON.stringify(checked));
-      onChange(evt);
-    } else {
-      console.error("Invalid event object:", evt);
-    }
+function FilterCheckbox({ onChange, isChecked }) {
+  const handleChange = (event) => {
+    const isChecked = event.target.checked;
+    onChange(isChecked);
+    localStorage.setItem("shortFilm", JSON.stringify(isChecked));
   };
 
   return (
@@ -29,10 +13,8 @@ function FilterCheckbox(props) {
         <input
           id="check-box"
           type="checkbox"
-          name="shortFilm"
           checked={isChecked}
           onChange={handleChange}
-          pattern=""
         />
         <span className="filter-checkbox__slider" />
       </label>

@@ -13,7 +13,7 @@ function Profile(props) {
     resetValidation,
     isFormValid,
     setIsFormValid,
-    setData
+    setData,
   } = useValidation();
   const {
     loggedIn,
@@ -29,8 +29,8 @@ function Profile(props) {
 
   useEffect(() => {
     resetValidation({ name: currentUser.name, email: currentUser.email });
-    //setData({ name: "", email: "" });
-    setIsFormValid(false);
+    setData({ name: currentUser.name, email: currentUser.email });
+    setIsFormValid(true);
   }, [currentUser, resetValidation, setData, setIsFormValid]);
 
   useEffect(() => {
@@ -49,7 +49,8 @@ function Profile(props) {
     const { name, value } = evt.target;
     setData((prevData) => {
       const newData = { ...prevData, [name]: value };
-      setIsFormValid(!isSameUserData(newData, currentUser));
+      const isDifferent = !isSameUserData(newData, currentUser);
+      setIsFormValid(isDifferent);
       return newData;
     });
   }
@@ -58,7 +59,9 @@ function Profile(props) {
     return data.name === user.name && data.email === user.email;
   }
 
-  const buttonSubmitClassName = `profile__btn ${isFormValid ? "" : "profile__btn_disable"}`;
+  const buttonSubmitClassName = `profile__btn ${
+    isFormValid ? "" : "profile__btn_disable"
+  }`;
 
   return (
     <>

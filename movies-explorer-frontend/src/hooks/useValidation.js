@@ -8,13 +8,13 @@ function useValidation() {
 
   const validateField = useCallback((name, value) => {
     let errorMessage = "";
-    if (name === "name" && value !== undefined) {
-      if (!value.match(REG_NAME)) {
+    if (name === "name") {
+      if (!REG_NAME.test(value)) {
         errorMessage =
           "Поле должно содержать только латиницу, кирилицу, пробел или дефис";
       }
-    } else if (name === "email" && value !== undefined) {
-      if (!value.match(REG_EMAIL)) {
+    } else if (name === "email") {
+      if (!REG_EMAIL.test(value)) {
         errorMessage = "Не валидный адрес электронной почты";
       }
     }
@@ -22,44 +22,30 @@ function useValidation() {
   }, []);
 
   const onChange = useCallback(
-    (name, value) => {
+    (evt) => {
+      const { name, value } = evt.target;
       const errorMessage = validateField(name, value);
-      const newData = { ...data, [name]: value };
-      const newErrors = { ...errors, [name]: errorMessage };
-
-      // Проверка на валидность всей формы
-      const formValid =
-        Object.values(newErrors).every((error) => !error) &&
-        Object.values(newData).every(
-          (value) => value !== undefined && value !== ""
-        );
-
-      setData(newData);
-      setErrors(newErrors);
-      setIsFormValid(formValid);
+      setData((prevData) => ({ ...prevData, [name]: value }));
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: errorMessage }));
+      setIsFormValid(!Object.values(errors).some((error) => error !== ""));
     },
-    [data, errors, validateField]
+    [validateField, errors]
   );
 
-  const resetValidation = useCallback((newData = {}, newErrors = {}) => {
-    setData(newData);
-    setErrors(newErrors);
-    setIsFormValid(
-      Object.values(newErrors).every((error) => !error) &&
-        Object.values(newData).every(
-          (value) => value !== undefined && value !== ""
-        )
-    );
+  const resetValidation = useCallback(() => {
+    setData({});
+    setErrors({});
+    setIsFormValid(false);
   }, []);
 
   return {
     data,
+    setData,
     errors,
     onChange,
     resetValidation,
     isFormValid,
     setIsFormValid,
-    setData,
   };
 }
 
