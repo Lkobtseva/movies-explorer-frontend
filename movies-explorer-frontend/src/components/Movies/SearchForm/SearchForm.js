@@ -6,11 +6,10 @@ import find from "../../../images/find.svg";
 function SearchForm({ onSubmitSearch }) {
   const { data, onChange, isFormValid, setIsFormValid } = useValidation();
   const [errorMessage, setErrorMessage] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [showShortFilms, setShowShortFilms] = useState(false);
 
   useEffect(() => {
-    const savedFilm = localStorage.getItem("film");
+    const savedFilm = window.location.pathname === "/movies" ? localStorage.getItem("film") : null;
     if (savedFilm) {
       onChange({ target: { name: "film", value: savedFilm } });
     }
@@ -19,12 +18,15 @@ function SearchForm({ onSubmitSearch }) {
   const handleInputChange = (evt) => {
     onChange(evt);
     localStorage.setItem("film", evt.target.value);
+    setIsFormValid(evt.target.value.trim() !== "");
   };
 
   useEffect(() => {
-    const shortFilm = localStorage.getItem("shortFilm");
-    if (shortFilm) {
-      setShowShortFilms(JSON.parse(shortFilm));
+    if (window.location.pathname === "/movies") {
+      const shortFilm = localStorage.getItem("shortFilm");
+      if (shortFilm) {
+        setShowShortFilms(JSON.parse(shortFilm));
+      }
     }
   }, []);
 
@@ -35,27 +37,18 @@ function SearchForm({ onSubmitSearch }) {
   };
 
   const buttonSearchClassName = `search-form__submit-btn ${
-    !isFormValid || errorMessage ? "search-form__submit-btn_disable" : ""
+    !isFormValid ? "search-form__submit-btn_disable" : ""
   }`;
 
   const handleSearch = (evt) => {
     evt.preventDefault();
-    setIsSubmitted(true);
     if (!data.film || data.film.trim() === "") {
       setErrorMessage("Нужно ввести ключевое слово");
-      setIsFormValid(false);
     } else {
       setErrorMessage("");
-      setIsFormValid(true);
       onSubmitSearch({ ...data, shortFilm: showShortFilms });
     }
   };
-
-  useEffect(() => {
-    if (isSubmitted && data.film) {
-      setErrorMessage("");
-    }
-  }, [data, isSubmitted]);
 
   return (
     <section className="search-form">
@@ -71,17 +64,19 @@ function SearchForm({ onSubmitSearch }) {
           <button
             className={buttonSearchClassName}
             type="submit"
-            disabled={!isFormValid || errorMessage}
+            //disabled={!isFormValid || errorMessage}
           >
             <img src={find} alt="Поиск" className="search-form__icon" />
           </button>
         </div>
         <span className="not-found-message">{errorMessage}</span>
-        <FilterCheckbox
-          label="Короткометражки"
-          onChange={handleCheckboxChange}
-          isChecked={showShortFilms}
-        />
+       
+          <FilterCheckbox
+            label="Короткометражки"
+            onChange={handleCheckboxChange}
+            isChecked={showShortFilms}
+          />
+      
       </form>
     </section>
   );

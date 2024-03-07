@@ -31,6 +31,9 @@ function App() {
   const [savedMoviesList, setSavedMoviesList] = useState([]);
   const [recentFilm, setRecentFilm] = useState(undefined);
   const [filteredMoviesList, setFilteredMoviesList] = useState([]);
+  const [moviesListLoaded, setMoviesListLoaded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
 
   function goToLogin() {
@@ -80,12 +83,14 @@ function App() {
     }
 
     if (isLiked) {
+      console.log(movie._id);
       removeSavedMovie(movie._id, jwt)
         .then(() => {
           setIsLiked(false);
           setSavedMoviesList(
             savedMoviesList.filter((elem) => elem._id !== movie._id)
           );
+          updateMoviesWithLikes(filteredMoviesList);
         })
         .catch((err) => console.log(`Ошибка: ${err}`));
     } else {
@@ -93,6 +98,7 @@ function App() {
         .then((res) => {
           setIsLiked(true);
           setSavedMoviesList([...savedMoviesList, res]);
+          updateMoviesWithLikes(filteredMoviesList);
         })
         .catch((err) => console.log(`Ошибка: ${err}`));
     }
@@ -119,11 +125,11 @@ function App() {
 
           if (shortFilm) {
             filteredMovies = filteredMovies.filter(
-              (movie) => movie.duration <= 40
+              (movie) => movie.duration <= SHORT_FILM_DURATION
             );
           } else {
             filteredMovies = filteredMovies.filter(
-              (movie) => movie.duration > 40
+              (movie) => movie.duration > SHORT_FILM_DURATION
             );
           }
         }
@@ -255,7 +261,6 @@ function App() {
 
   function applyFilter(movies, filterParam, savedMovies) {
     const { film, shortFilm = false } = filterParam;
-    console.log("Short film filter1:", shortFilm);
     const lowercaseFilm = film.toLowerCase();
 
     let filteredMovies = movies.filter(
@@ -263,11 +268,11 @@ function App() {
         elem.nameRU.toLowerCase().includes(lowercaseFilm) ||
         elem.nameEN.toLowerCase().includes(lowercaseFilm)
     );
-    console.log(shortFilm);
+
     if (shortFilm) {
-      filteredMovies = filteredMovies.filter((elem) => elem.duration <= 40);
-    } else {
-      filteredMovies = filteredMovies.filter((elem) => elem.duration > 40);
+      filteredMovies = filteredMovies.filter(
+        (elem) => elem.duration <= SHORT_FILM_DURATION
+      );
     }
 
     const savedMoviesIndex = savedMovies.reduce((acc, elem) => {
@@ -286,38 +291,60 @@ function App() {
   function filterFilms() {
     setErrorMessage("");
     const jwt = localStorage.getItem("token");
-    if (jwt) {
-      setIsLoading(true);
-      const filterParam = JSON.parse(localStorage.getItem("filter"));
+    const filterParam = JSON.parse(localStorage.getItem("filter"));
 
-      Promise.all([loadMovieList(), fetchSavedMovies(jwt)])
-        .then((promiseResult) => {
-          const [movies, savedMovies] = promiseResult;
-
-          if (filterParam) {
-            const filterMovies = applyFilter(movies, filterParam, savedMovies);
-
-            if (filterMovies.length === 0) {
-              setErrorMessage("Ничего не найдено");
-            }
-
-            setFilteredMoviesList(filterMovies);
-          } else {
-            localStorage.removeItem("filteredFilmList");
-            setFilteredMoviesList([]);
-          }
-          setRecentFilm(undefined);
-        })
-        .catch((err) =>
-          setErrorMessage(
-            "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз"
-          )
-        )
-        .finally(() => setIsLoading(false));
+    if (!filterParam) {
+      return;
     }
+
+    setIsLoading(true);
+
+    Promise.all([fetchSavedMovies(jwt)])
+      .then((promiseResult) => {
+        const [savedMovies] = promiseResult;
+
+        if (!localStorage.getItem("moviesList")) {
+          getMoviesList()
+            .then((movies) => {
+              localStorage.setItem("moviesList", JSON.stringify(movies));
+              filterAndSetMoviesList(movies, filterParam, savedMovies);
+            })
+            .catch((err) =>
+              setErrorMessage(
+                "Ошибка при загрузке списка фильмов. Попробуйте позже."
+              )
+            )
+            .finally(() => setIsLoading(false));
+        } else {
+          const movies = JSON.parse(localStorage.getItem("moviesList"));
+          filterAndSetMoviesList(movies, filterParam, savedMovies);
+        }
+      })
+      .catch((err) =>
+        setErrorMessage(
+          "Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз."
+        )
+      );
+  }
+
+  function filterAndSetMoviesList(movies, filterParam, savedMovies) {
+    if (filterParam) {
+      const filterMovies = applyFilter(movies, filterParam, savedMovies);
+
+      if (filterMovies.length === 0) {
+        setErrorMessage("Ничего не найдено");
+      }
+
+      setFilteredMoviesList(filterMovies);
+    } else {
+      localStorage.removeItem("filteredFilmList");
+      setFilteredMoviesList([]);
+    }
+    setRecentFilm(undefined);
   }
 
   function onSubmitSearch(data) {
+    setIsSubmitting(true);
     console.log("Short film filter in onSubmitSearch:", data.shortFilm);
 
     const searchData = {
@@ -331,6 +358,7 @@ function App() {
     localStorage.setItem("shortFilm", JSON.stringify(shortFilm));
 
     filterFilms();
+    setIsSubmitting(false);
   }
 
   function onSubmitSaveSearch(data) {
@@ -339,6 +367,7 @@ function App() {
 
   function signOut() {
     localStorage.removeItem("token");
+    localStorage.removeItem("film");
     localStorage.removeItem("filter");
     localStorage.removeItem("moviesList");
     localStorage.removeItem("filteredFilmList");
@@ -425,6 +454,7 @@ function App() {
               setRecentFilm={setRecentFilm}
               addLike={addLike}
               updateMoviesWithLikes={updateMoviesWithLikes}
+              moviesListLoaded={moviesListLoaded}
             />
           }
         />

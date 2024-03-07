@@ -124,7 +124,7 @@ function Movies(props) {
           onSubmitSearch={onSubmitSearch}
         />
         <span className="not-found-message">{errorMessage}</span>
-        <Preloader isLoading={isLoading} />
+        {isLoading && <Preloader />} 
         <MoviesCardList
           page="movies"
           addLike={addLike}
@@ -143,3 +143,4 @@ function Movies(props) {
 }
 
 export default Movies;
+

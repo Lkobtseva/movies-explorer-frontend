@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 function FilterCheckbox({ onChange, isChecked }) {
   const handleChange = (event) => {
@@ -24,5 +24,6 @@ function FilterCheckbox({ onChange, isChecked }) {
     </div>
   );
 }
+
 
 export default FilterCheckbox;
