@@ -1,10 +1,12 @@
-import React from 'react';
+import React from "react";
 
-function FilterCheckbox({ onChange, isChecked }) {
+function FilterCheckbox({ onChange, isChecked, label }) {
+  const storageKey = `shortFilm_${label}`;
+
   const handleChange = (event) => {
     const isChecked = event.target.checked;
     onChange(isChecked);
-    localStorage.setItem("shortFilm", JSON.stringify(isChecked));
+    localStorage.setItem(storageKey, JSON.stringify(isChecked));
   };
 
   return (
@@ -18,12 +20,11 @@ function FilterCheckbox({ onChange, isChecked }) {
         />
         <span className="filter-checkbox__slider" />
       </label>
-      <label htmlFor="check-box" className="filter-checkbox__label">
-        Короткометражки
+      <label className="filter-checkbox__label" htmlFor="check-box">
+        {label}
       </label>
     </div>
   );
 }
-
 
 export default FilterCheckbox;

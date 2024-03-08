@@ -3,49 +3,43 @@ import useValidation from "../../../hooks/useValidation";
 import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
 import find from "../../../images/find.svg";
 
-function SearchForm({ onSubmitSearch }) {
+function SearchForm({ onSubmitSearch  }) {
   const { data, onChange, isFormValid, setIsFormValid } = useValidation();
   const [errorMessage, setErrorMessage] = useState("");
   const [showShortFilms, setShowShortFilms] = useState(false);
 
   useEffect(() => {
-    const savedFilm = window.location.pathname === "/movies" ? localStorage.getItem("film") : null;
+    const savedFilm = localStorage.getItem("film_" + window.location.pathname);
     if (savedFilm) {
       onChange({ target: { name: "film", value: savedFilm } });
     }
   }, []);
 
-  const handleInputChange = (evt) => {
-    onChange(evt);
-    localStorage.setItem("film", evt.target.value);
-    setIsFormValid(evt.target.value.trim() !== "");
-  };
-
   useEffect(() => {
-    if (window.location.pathname === "/movies") {
-      const shortFilm = localStorage.getItem("shortFilm");
-      if (shortFilm) {
-        setShowShortFilms(JSON.parse(shortFilm));
-      }
+    const savedShortFilm = localStorage.getItem("shortFilm_" + window.location.pathname);
+    if (savedShortFilm) {
+      setShowShortFilms(JSON.parse(savedShortFilm));
     }
   }, []);
 
-  const handleCheckboxChange = (isChecked) => {
-    setShowShortFilms(isChecked);
-    localStorage.setItem("shortFilm", JSON.stringify(isChecked));
-    onSubmitSearch({ ...data, shortFilm: isChecked });
+  const handleInputChange = (evt) => {
+    onChange(evt);
+    localStorage.setItem("film_" + '/movies', evt.target.value);
+    setIsFormValid(evt.target.value.trim() !== "");
   };
 
-  const buttonSearchClassName = `search-form__submit-btn ${
-    !isFormValid ? "search-form__submit-btn_disable" : ""
-  }`;
+  const handleCheckboxChange = (isChecked) => {
+    setShowShortFilms(isChecked);
+    localStorage.setItem("shortFilm_" + '/movies', JSON.stringify(isChecked));
+    onSubmitSearch({ ...data, shortFilm: isChecked });
+  };
 
   const handleSearch = (evt) => {
     evt.preventDefault();
     if (!data.film || data.film.trim() === "") {
       setErrorMessage("Нужно ввести ключевое слово");
     } else {
-      setErrorMessage("");
+      setErrorMessage(""); 
       onSubmitSearch({ ...data, shortFilm: showShortFilms });
     }
   };
@@ -62,21 +56,24 @@ function SearchForm({ onSubmitSearch }) {
             onChange={handleInputChange}
           />
           <button
-            className={buttonSearchClassName}
+            className={`search-form__submit-btn ${
+              !isFormValid ? "search-form__submit-btn_disable" : ""
+            }`}
             type="submit"
-            //disabled={!isFormValid || errorMessage}
           >
-            <img src={find} alt="Поиск" className="search-form__icon" />
+            <img
+              src={find}
+              alt="Поиск"
+              className="search-form__icon"
+            />
           </button>
         </div>
         <span className="not-found-message">{errorMessage}</span>
-       
-          <FilterCheckbox
-            label="Короткометражки"
-            onChange={handleCheckboxChange}
-            isChecked={showShortFilms}
-          />
-      
+        <FilterCheckbox
+          label="Короткометражки"
+          onChange={handleCheckboxChange}
+          isChecked={showShortFilms}
+        />
       </form>
     </section>
   );

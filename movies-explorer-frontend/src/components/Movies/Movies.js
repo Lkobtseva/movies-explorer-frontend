@@ -9,10 +9,6 @@ import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import useValidation from "../../hooks/useValidation";
 import { useWindowWidth } from "@react-hook/window-size";
 
-// Константы для длительности короткометражек и количества фильмов
-const INITIAL_MOVIES_COUNT = 12;
-const ADDITIONAL_MOVIES_COUNT = 3;
-
 function Movies(props) {
   const {
     loggedIn,
@@ -30,6 +26,10 @@ function Movies(props) {
     isLoading,
     errorMessage,
     setErrorMessage,
+    showShortFilms,
+    setShowShortFilms,
+    handleCheckboxChange,
+    handleSearch,
   } = props;
 
   const { data, onChange, isFormValid, setData } = useValidation();
@@ -70,22 +70,29 @@ function Movies(props) {
     setRecentFilm(max);
   }, [filteredMoviesList, currentWindowWidth]);
 
+  useEffect(() => {
+    const max = calculateLimit();
+    const newList = filteredMoviesList.slice(0, max);
+    setFilteredAndLimitedMoviesList(newList);
+    setRecentFilm(max);
+  }, [filteredMoviesList, currentWindowWidth]);
+
   const calculateLimit = () => {
     if (recentFilm !== undefined) {
       return recentFilm;
     } else {
       if (currentWindowWidth >= 1280) {
-        return INITIAL_MOVIES_COUNT;
+        return 12;
       } else if (currentWindowWidth >= 768) {
-        return INITIAL_MOVIES_COUNT - ADDITIONAL_MOVIES_COUNT;
+        return 8;
       } else {
-        return INITIAL_MOVIES_COUNT - 2 * ADDITIONAL_MOVIES_COUNT;
+        return 5;
       }
     }
   };
 
   const handleAddMore = () => {
-    const increment = currentWindowWidth >= 1280 ? ADDITIONAL_MOVIES_COUNT : 2;
+    const increment = currentWindowWidth >= 1280 ? 3 : 2;
     const newLimit = recentFilm + increment;
     const newList = filteredMoviesList.slice(0, newLimit);
     setFilteredAndLimitedMoviesList(newList);
@@ -122,9 +129,15 @@ function Movies(props) {
           isFormValid={isFormValid}
           onChange={onChange}
           onSubmitSearch={onSubmitSearch}
+          showShortFilms={showShortFilms}
+          handleCheckboxChange={handleCheckboxChange}
+          handleSearch={handleSearch}
         />
-        <span className="not-found-message">{errorMessage}</span>
-        {isLoading && <Preloader />} 
+
+        <span className="not-found-message">
+          {errorMessage && errorMessage.toString()}
+        </span>
+        {isLoading && <Preloader />}
         <MoviesCardList
           page="movies"
           addLike={addLike}
@@ -143,4 +156,3 @@ function Movies(props) {
 }
 
 export default Movies;
-

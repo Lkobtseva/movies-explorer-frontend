@@ -345,7 +345,6 @@ function App() {
 
   function onSubmitSearch(data) {
     setIsSubmitting(true);
-    console.log("Short film filter in onSubmitSearch:", data.shortFilm);
 
     const searchData = {
       film: data.film,
@@ -366,15 +365,19 @@ function App() {
   }
 
   function signOut() {
+    setLoggedIn(false);
     localStorage.removeItem("token");
     localStorage.removeItem("film");
     localStorage.removeItem("filter");
     localStorage.removeItem("moviesList");
     localStorage.removeItem("filteredFilmList");
     localStorage.removeItem("shortFilm");
+    localStorage.removeItem("film_" + "/movies");
+    localStorage.removeItem("film_" + "/saved-movies");
+    localStorage.removeItem("shortFilm_" + "/movies");
+    localStorage.removeItem("shortFilm_" + "/saved-movies");
     setFilteredMoviesList([]);
     setCurrentUser({});
-    setLoggedIn(false);
 
     navigate("/");
   }
