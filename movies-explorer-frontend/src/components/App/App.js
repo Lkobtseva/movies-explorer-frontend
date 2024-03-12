@@ -336,6 +336,7 @@ function App() {
       }
 
       setFilteredMoviesList(filterMovies);
+      localStorage.setItem("filteredFilmList", JSON.stringify(filterMovies)); 
     } else {
       localStorage.removeItem("filteredFilmList");
       setFilteredMoviesList([]);
@@ -370,7 +371,7 @@ function App() {
     localStorage.removeItem("film");
     localStorage.removeItem("filter");
     localStorage.removeItem("moviesList");
-    localStorage.removeItem("filteredFilmList");
+    localStorage.removeItem("filteredFilmList"); 
     localStorage.removeItem("shortFilm");
     localStorage.removeItem("film_" + "/movies");
     localStorage.removeItem("film_" + "/saved-movies");
@@ -381,6 +382,13 @@ function App() {
 
     navigate("/");
   }
+
+  useEffect(() => {
+    const storedFilteredMovies = JSON.parse(localStorage.getItem("filteredFilmList"));
+    if (storedFilteredMovies) {
+      setFilteredMoviesList(storedFilteredMovies);
+    }
+  }, []);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
