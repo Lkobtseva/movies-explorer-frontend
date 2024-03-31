@@ -64,6 +64,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: white;
+  max-width: 300px
 }
 
 .movie-card__duration {
@@ -87,9 +88,9 @@
     width: 339px;
     height: 190px;
   }
-  .movie-card__figcaption {
+  /*.movie-card__figcaption {
     padding: 0;
-  }
+  }*/
 }
 
 @media screen and (max-width: 530px) {

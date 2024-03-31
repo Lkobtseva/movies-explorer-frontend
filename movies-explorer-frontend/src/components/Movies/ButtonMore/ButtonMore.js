@@ -1,9 +1,9 @@
 import React from "react";
 
 function ButtonMore(props) {
-  const { handleClickMore } = props;
+  const { handleAddMore } = props;
   return (
-    <button className="btn-more" onClick={handleClickMore}>
+    <button className="btn-more" onClick={handleAddMore}>
       Еще
     </button>
   );

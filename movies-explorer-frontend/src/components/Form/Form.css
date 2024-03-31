@@ -66,8 +66,9 @@
   height: 46px;
   border: none;
   padding: 15px;
-  margin-top: 11px;
+  margin-top: 10px;
   box-sizing: border-box;
+  color: white;
 }
 
 .form__input_error {
@@ -84,7 +85,8 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-top: 2px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .form__input-error_server {
@@ -134,4 +136,9 @@
   .form__input-error_log {
     margin-top: 206px;
   }
+  .form__input-error {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
 }
+
